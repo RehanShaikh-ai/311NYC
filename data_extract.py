@@ -17,7 +17,7 @@ SELECT
 WHERE created_date
   BETWEEN '2021-01-01T00:00:00' AND '2026-01-01T00:00:00'
 ORDER BY created_date DESC
-LIMIT 200000
+LIMIT 20_000_000
 """
 
 results = client.get("erm2-nwe9", query=query)
