@@ -2,6 +2,7 @@ import duckdb
 
 con = duckdb.connect("nyc_311.duckdb")
 
+# Unclean and non-aggregated data
 con.execute(
     """
 CREATE OR REPLACE VIEW v_raw \
@@ -11,6 +12,7 @@ CREATE OR REPLACE VIEW v_raw \
             """
 )
 
+# Eliminates noisy status values 
 con.execute(
     """
 CREATE OR REPLACE VIEW v_norm
@@ -36,6 +38,8 @@ CREATE OR REPLACE VIEW v_norm
             """
 )
 
+
+# Sanity checks
 con.execute(
     """
             SELECT *
@@ -43,14 +47,14 @@ con.execute(
             LIMIT 10 """
 ).fetch_df()
 
-con.execute( """
-    SELECT ((SELECT COUNT(*) FROM v_norm WHERE lower(normalized_status) = 'unspecified' )/ COUNT(*)) * 100 FROM v_norm        
-
-""").fetchone()
-
+  
 con.execute( """SELECT
     COUNT(*) AS cnt
 FROM v_norm;
 
 """).fetchdf()
 
+
+con.execute( """SELECT COUNT(DISTINCT(agency)) FROM  v_norm
+
+""").fetchdf()
