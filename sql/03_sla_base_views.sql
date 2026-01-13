@@ -27,4 +27,4 @@ FROM v_norm
 WHERE normalized_status = 'Closed'
 AND closed_ts IS NOT NULL;
 
-g
+
