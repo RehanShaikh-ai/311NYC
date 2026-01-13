@@ -1,4 +1,6 @@
-# NYC 311 SLA Analytics
+# LatencyAtlas  
+**SLA compliance and response variability analysis using NYC 311 service requests**
+
 
 ![Python](https://img.shields.io/badge/Python-3.x-blue)
 ![DuckDB](https://img.shields.io/badge/DuckDB-Analytics-orange)
@@ -12,6 +14,7 @@ Built with API-driven ingestion and a modern analytics-first architecture.
 
 To evaluate operational efficiency and SLA adherence across NYC agencies using real, API-sourced data.  
 The project is intentionally framed around analytical rigor, pushing heavy logic upstream and keeping BI tools focused on decision-making visuals.
+This project prioritizes analytical correctness and governance over visual storytelling.
 
 ## Data Source
 
@@ -20,37 +23,46 @@ The project is intentionally framed around analytical rigor, pushing heavy logic
 - Dataset ID: `erm2-nwe9`
 - Access Method: Socrata API via Python (`sodapy`)
 - Data Scope: Time-scoped operational slice (explicitly framed, not full historical analysis)
+- Raw data is ingested via authenticated API access and stored without transformation.
 
 ## Architecture
-
-NYC Open Data API  
-        ↓  
-Python (sodapy)  
-        ↓  
-Parquet (raw, immutable)  
-        ↓  
-DuckDB (views + aggregations)  
-        ↓  
-Power BI (visualization only)
+![data pipeline](images/pipeline.png)
 
 ## Storage Strategy
 
 - Raw data stored in Parquet for columnar, compressed analytics
 - Raw files treated as immutable
 - CSV-based workflows intentionally avoided
+- This ensures raw data can always be re-audited against derived analytics.
 
 ## Analytics Layer
 
 - DuckDB used as the analytical SQL engine (OLAP)
 - Parquet queried directly without import
-- Business logic implemented via SQL views:
-  - Base data cleaning and derived metrics
-  - SLA classification logic
-  - Aggregated, BI-ready summary views
+
+Business logic is implemented upstream using layered SQL views:
+- **Raw views**: faithful exposure of ingested data with no interpretation  
+- **Normalization views**: controlled semantic mappings (e.g., status normalization)  
+- **Eligibility views**: enforcement of SLA applicability rules  
+- **SLA views**: fixed-threshold SLA classification and severity buckets  
+
+Power BI consumes only curated views and does not define eligibility or SLA logic.
+
+## Reproducibility (In Progress)
+
+This project is designed to be fully reproducible from raw data ingestion to BI-ready analytics.
+
+The intended workflow will include:
+1. Environment-based API authentication
+2. Deterministic data extraction to immutable Parquet
+3. Automated construction of the DuckDB semantic layer via SQL scripts
+4. Read-only BI consumption via ODBC
+
+Detailed, step-by-step reproduction instructions will be added as the pipeline stabilizes.
 
 ## **👤 Author**
 
-**Rehan Abdul Gani Shaikh**
+**Rehan Abdul Gani Shaikh** <br>
 **Data Science & ML Student | Python • Power BI | Building Real-World Data Projects**
 
 🔗 Connect with me:  [LinkedIn](https://www.linkedin.com/in/rehan-shaikh-68153a246)  
