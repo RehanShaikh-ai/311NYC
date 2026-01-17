@@ -26,4 +26,4 @@ descriptor,
 status, 
 borough 
 
-FROM read_parquet('NYC311.parquet');
+FROM read_parquet('data/NYC311.parquet');

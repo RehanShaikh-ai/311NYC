@@ -1,12 +1,25 @@
 import os
-
+import logging
+from pathlib import Path
 import pandas as pd
 from dotenv import load_dotenv
-from sodapy import Socrata
+from sodapy import Socrata #API library for data
 
-load_dotenv()
-client = Socrata("data.cityofnewyork.us", app_token=os.getenv("SOCRATA_APP_TOKEN"))
+Path("logs").mkdir(exist_ok=True)
+#configuring logging format
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s | %(levelname)s | %(message)s",
+    handlers=[logging.FileHandler("logs/data_fetch.log"), logging.StreamHandler()],
+)
+logger = logging.getLogger(__name__)
 
+
+load_dotenv() #load .env with app token
+client = Socrata("data.cityofnewyork.us", app_token=os.getenv("SOCRATA_APP_TOKEN")) 
+
+
+# <------------fetch data from 2021-2025------------>
 query = """
 SELECT
   unique_key,
@@ -18,14 +31,26 @@ SELECT
   descriptor,
   status,
   borough
-WHERE created_date
+  WHERE created_date
   BETWEEN '2021-01-01T00:00:00' AND '2026-01-01T00:00:00'
 ORDER BY created_date DESC
-LIMIT 20_000_000
+LIMIT 20000000 
 """
+# Data directory and filename
+DATA_DIR = Path('data')
+FILE_NAME = 'NYC311.parquet'
+path = DATA_DIR / FILE_NAME
 
-results = client.get("erm2-nwe9", query=query)
+try:
+      
+  logger.info('Extracting data...')
+  results = client.get("erm2-nwe9", query=query)
 
-df = pd.DataFrame.from_records(results)
-print(len(df))
-df.to_parquet("NYC311.parquet", index=False)
+  logger.info('Converting to PARQUET format...')
+  df = pd.DataFrame.from_records(results) #convert to DataFrame
+  df.to_parquet(path, index=False) #Convert to PARQUET format for faster read
+  logger.info(f'Data fetch completed ! Data saved at {path}')
+
+except Exception as e:
+  logger.error("Data fetch failed", exc_info=True)
+  raise e
