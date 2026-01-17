@@ -4,7 +4,7 @@ from pathlib import Path
 import duckdb
 
 # <------------logging setup------------>
-Path('logs').mkdir(exist_ok=True)
+Path("logs").mkdir(exist_ok=True)
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s | %(levelname)s | %(message)s",
@@ -46,5 +46,6 @@ def main():
         logger.error("Build failed", exc_info=True)
         raise e
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
